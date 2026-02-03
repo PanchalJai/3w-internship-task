@@ -1,3 +1,4 @@
+// src/pages/Login.jsx
 import { useState } from "react";
 import API from "../services/api";
 import { Button, Form, Container } from "react-bootstrap";
@@ -9,42 +10,42 @@ const Login = () => {
     const navigate = useNavigate();
 
     const submitHandler = async (e) => {
-        e.preventDefault();
-        const res = await API.post("/auth/login", { email, password });
-        localStorage.setItem("token", res.data.token);
-        localStorage.setItem("username", res.data.user.username);
-        
-        window.location.href = "/feed";
+        e.preventDefault(); // Prevent GET request / page reload
+
+        try {
+            const res = await API.post("/auth/login", { email, password });
+            console.log(res.data);
+            localStorage.setItem("token", res.data.token); // Save JWT token
+            alert("Login successful!");
+            navigate("/dashboard"); // Redirect after login
+        } catch (err) {
+            console.error(err.response?.data || err.message);
+            alert(err.response?.data?.error || "Login failed");
+        }
     };
 
     return (
         <Container className="mt-5" style={{ maxWidth: "420px" }}>
-            <div className="shadow-sm p-4 bg-white rounded">
-            <h4 className="mb-3 text-center">Welcome Back</h4>
+            <h3>Login</h3>
             <Form onSubmit={submitHandler}>
                 <Form.Control
+                    type="email"
                     placeholder="Email"
-                    onChange={(e) => setEmail(e.target.value)}
                     className="mb-2"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
                 />
                 <Form.Control
                     type="password"
                     placeholder="Password"
-                    onChange={(e) => setPassword(e.target.value)}
                     className="mb-2"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
                 />
                 <Button type="submit">Login</Button>
             </Form>
-            <p className="mt-3">
-                New user?{" "}
-                <span
-                    style={{ color: "blue", cursor: "pointer" }}
-                    onClick={() => navigate("/register")}
-                >
-                    Register here
-                </span>
-            </p>
-            </div>
         </Container>
     );
 };
